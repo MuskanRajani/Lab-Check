@@ -3,184 +3,1705 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Drug Test Panel Matcher</title>
+
 <style>
-  *{box-sizing:border-box}
-  body{font-family:Arial,sans-serif;margin:0;background:#f5f6f8;color:#222}
-  .wrap{max-width:1000px;margin:40px auto;padding:0 20px}
-  h1{margin-bottom:8px}
-  .sub{color:#666;margin-top:0}
-  .card{background:#fff;border-radius:12px;padding:22px;margin:18px 0;box-shadow:0 2px 10px #00000012}
-  textarea{width:100%;min-height:110px;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:15px;resize:vertical}
-  button{border:0;border-radius:8px;padding:11px 18px;font-size:15px;cursor:pointer;margin-top:12px}
-  .primary{background:#222;color:white}
-  .secondary{background:#eee}
-  .results{display:grid;gap:12px}
-  .result{border:1px solid #ddd;border-radius:10px;padding:16px}
-  .match{border-left:5px solid #16803c}
-  .partial{border-left:5px solid #c47a00}
-  .no{border-left:5px solid #c62828}
-  .badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:bold;margin-left:8px;background:#eee}
-  .match .badge{background:#e6f5eb;color:#16803c}
-  .partial .badge{background:#fff3d8;color:#9a6100}
-  .no .badge{background:#fdeaea;color:#b71c1c}
-  .missing{color:#b71c1c}
-  .extra{color:#666}
-  .hint{font-size:13px;color:#777}
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f5f6f8;
+    color: #222;
+  }
+
+  .wrap {
+    max-width: 1150px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  h1 {
+    margin-bottom: 8px;
+  }
+
+  .sub {
+    color: #666;
+    margin-top: 0;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 22px;
+    margin: 18px 0;
+    box-shadow: 0 2px 10px #00000012;
+  }
+
+  /* =========================
+     SECTION HEADER
+     ========================= */
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 18px;
+  }
+
+  .section-header h2 {
+    margin: 0;
+    font-size: 21px;
+  }
+
+  .section-header p {
+    margin: 4px 0 0;
+    color: #777;
+    font-size: 13px;
+  }
+
+  /* =========================
+     BASIC PANELS
+     ========================= */
+
+  .basic-panels {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+
+  .basic-panel {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .basic-panel-header {
+    background: #f7f7f7;
+    padding: 15px 17px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .basic-panel-header h3 {
+    margin: 0;
+    font-size: 18px;
+  }
+
+  .basic-panel-header p {
+    margin: 5px 0 0;
+    color: #777;
+    font-size: 12px;
+  }
+
+  .vendor-block {
+    padding: 15px 17px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .vendor-block:last-child {
+    border-bottom: 0;
+  }
+
+  .vendor-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .vendor-name {
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .vendor-code {
+    background: #eeeeee;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #555;
+  }
+
+  .vendor-description {
+    color: #777;
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .drug-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .drug-chip {
+    border: 1px solid #ddd;
+    background: #fafafa;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .drug-chip strong {
+    color: #222;
+  }
+
+  .drug-chip span {
+    color: #666;
+  }
+
+  /* =========================
+     BASIC PANEL MATCH STATUS
+     ========================= */
+
+  .basic-status {
+    display: none;
+    margin-top: 13px;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .basic-status.show {
+    display: block;
+  }
+
+  .basic-status.full {
+    background: #e6f5eb;
+    color: #16803c;
+  }
+
+  .basic-status.partial {
+    background: #fff3d8;
+    color: #9a6100;
+  }
+
+  .basic-status.none {
+    background: #fdeaea;
+    color: #b71c1c;
+  }
+
+  .status-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .status-row {
+    margin-top: 4px;
+  }
+
+  /* =========================
+     SEARCH
+     ========================= */
+
+  textarea {
+    width: 100%;
+    min-height: 115px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    resize: vertical;
+    font-family: Arial, sans-serif;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: #777;
+  }
+
+  button {
+    border: 0;
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+
+  .primary {
+    background: #222;
+    color: white;
+  }
+
+  .primary:hover {
+    background: #000;
+  }
+
+  .secondary {
+    background: #eee;
+  }
+
+  .secondary:hover {
+    background: #ddd;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 0;
+  }
+
+  /* =========================
+     RESULTS
+     ========================= */
+
+  .results {
+    display: grid;
+    gap: 12px;
+  }
+
+  .result {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 16px;
+    background: #fff;
+  }
+
+  .match {
+    border-left: 5px solid #16803c;
+  }
+
+  .partial {
+    border-left: 5px solid #c47a00;
+  }
+
+  .no {
+    border-left: 5px solid #c62828;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 8px;
+    background: #eee;
+  }
+
+  .match .badge {
+    background: #e6f5eb;
+    color: #16803c;
+  }
+
+  .partial .badge {
+    background: #fff3d8;
+    color: #9a6100;
+  }
+
+  .no .badge {
+    background: #fdeaea;
+    color: #b71c1c;
+  }
+
+  .missing {
+    color: #b71c1c;
+    margin-top: 7px;
+  }
+
+  .extra {
+    color: #555;
+    margin-top: 7px;
+  }
+
+  .result-count {
+    margin-top: 7px;
+    color: #555;
+  }
+
+  .empty-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 18px;
+    color: #777;
+  }
+
+  /* =========================
+     RESPONSIVE
+     ========================= */
+
+  @media (max-width: 850px) {
+    .basic-panels {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 550px) {
+    .wrap {
+      margin: 20px auto;
+      padding: 0 12px;
+    }
+
+    .card {
+      padding: 16px;
+    }
+
+    .basic-panel {
+      width: 100%;
+    }
+  }
 </style>
 </head>
+
 <body>
+
 <div class="wrap">
+
+  <!-- =====================================================
+       PAGE HEADER
+       ===================================================== -->
+
   <h1>Drug Test Panel Matcher</h1>
-  <p class="sub">Enter the drugs required by the client. The utility compares them with the panels below.</p>
+
+  <p class="sub">
+    Compare client drug requirements with standard panel references
+    and available Labcorp and CRL profiles.
+  </p>
+
+
+  <!-- =====================================================
+       BASIC PANEL REFERENCE
+       ===================================================== -->
 
   <div class="card">
-    <label><strong>Required drugs</strong></label>
-    <textarea id="input" placeholder="Example: Amphetamines, Barbiturates, Benzodiazepines, Cocaine, Methadone, Opiates, Phencyclidine"></textarea>
-    <div>
-      <button class="primary" onclick="matchPanels()">Find Matching Panels</button>
-      <button class="secondary" onclick="document.getElementById('input').value='';document.getElementById('results').innerHTML=''">Clear</button>
+
+    <div class="section-header">
+
+      <div>
+        <h2>Basic Drug Panel Reference</h2>
+
+        <p>
+          Labcorp and CRL panel/profile codes and their associated drugs.
+        </p>
+      </div>
+
     </div>
-    <p class="hint">You can use full names or abbreviations such as AMP, BAR, BZP, COC, MTD, OPI, PCP, THC, PPX, 6AM.</p>
+
+    <div
+      id="basicPanels"
+      class="basic-panels">
+    </div>
+
   </div>
 
-  <div id="results" class="results"></div>
+
+  <!-- =====================================================
+       SEARCH
+       ===================================================== -->
+
+  <div class="card">
+
+    <label>
+      <strong>Required drugs</strong>
+    </label>
+
+    <textarea
+      id="input"
+      placeholder="Example: Amphetamines, Barbiturates, Benzodiazepines, Cocaine, Methadone, Opiates, Phencyclidine"
+      oninput="updateBasicPanelMatches()"
+    ></textarea>
+
+    <div>
+
+      <button
+        class="primary"
+        onclick="matchPanels()"
+      >
+        Find Matching Panels
+      </button>
+
+      <button
+        class="secondary"
+        onclick="clearSearch()"
+      >
+        Clear
+      </button>
+
+    </div>
+
+    <p class="hint">
+
+      You can use full names or abbreviations such as
+      AMP, BAR, BZP, COC, MTD, OPI, PCP, THC, PPX, 6AM.
+
+    </p>
+
+  </div>
+
+
+  <!-- =====================================================
+       SEARCH RESULTS
+       ===================================================== -->
+
+  <div
+    id="results"
+    class="results">
+  </div>
+
 </div>
 
+
 <script>
+
+/* =========================================================
+   DRUG DEFINITIONS
+   ========================================================= */
+
 const DRUGS = {
+
   AMP: "Amphetamines",
+
   BAR: "Barbiturates",
+
   BZP: "Benzodiazepines",
+
   COC: "Cocaine",
+
   MTD: "Methadone",
+
   OPI: "Opiates",
+
   PCP: "Phencyclidine",
+
   THC: "Marijuana / THC",
+
   PPX: "Propoxyphene",
+
   "6AM": "6-Acetylmorphine / Heroin metabolite",
+
   MDM: "Methaqualone",
+
   NIT: "Nitrite",
+
   OXC: "Oxycodone / Oxymorphone",
+
   FNL: "Fentanyl",
+
   CREA: "Urine Creatinine",
+
   PH: "Urine pH",
-  CODMOR: "Codeine / Morphine"
+
+  CODMOR: "Codeine / Morphine",
+
+  MEP: "Meperidine",
+
+  HYC: "Hydrocodone",
+
+  HYD: "Hydromorphone",
+
+  TRA: "Tramadol",
+
+  BUP: "Buprenorphine",
+
+  MDMA: "MDMA / Ecstasy"
+
 };
+
+
+/* =========================================================
+   ALIASES
+   ========================================================= */
 
 const ALIASES = {
-  "AMPHETAMINES":"AMP","AMPHETAMINE":"AMP","AMP":"AMP",
-  "BARBITURATES":"BAR","BAR":"BAR",
-  "BENZODIAZEPINES":"BZP","BZP":"BZP","BENZOS":"BZP",
-  "COCAINE":"COC","COC":"COC","COCAINE METABOLITE":"COC",
-  "METHADONE":"MTD","MTD":"MTD","METHADONE MTB":"MTD",
-  "OPIATES":"OPI","OPIATE":"OPI","OPI":"OPI","OPIATES-4":"OPI",
-  "PHENCYCLIDINE":"PCP","PCP":"PCP",
-  "MARIJUANA":"THC","THC":"THC","CANNABIS":"THC","MARIJUANA METABOLITES":"THC",
-  "PROPOXYPHENE":"PPX","PPX":"PPX","PROPOXYPHENE MTB":"PPX",
-  "6-AM":"6AM","6AM":"6AM","6-ACETYLMORPHINE":"6AM","HEROIN":"6AM",
-  "METHAQUALONE":"MDM","MDM":"MDM",
-  "NITRITE":"NIT","NIT":"NIT",
-  "OXYCODONE":"OXC","OXYCODONE/OXYMORPHONE":"OXC","OXYC/OXYM":"OXC","OXC":"OXC",
-  "FENTANYL":"FNL","FNL":"FNL",
-  "CREATININE":"CREA","URINE CREATININE":"CREA","CREA":"CREA",
-  "PH":"PH","URINE PH":"PH",
-  "OP4":"OPI","OPIATES-4":"OPI",
-  "MQU":"MDM","MEP":"MEP","MEPERIDINE":"MEP","HYC":"HYC","HYD":"HYD",
-  "TRA":"TRA","TRAMADOL":"TRA","BUP":"BUP","BUPRENORPHINE":"BUP",
-  "MDMA":"MDMA","MDMA/MDA":"MDMA",
-  "CODEINE":"CODMOR","MORPHINE":"CODMOR","CODEINE/MORPHINE":"CODMOR","COD/MOR":"CODMOR"
+
+  "AMPHETAMINES": "AMP",
+  "AMPHETAMINE": "AMP",
+  "AMP": "AMP",
+
+  "BARBITURATES": "BAR",
+  "BAR": "BAR",
+
+  "BENZODIAZEPINES": "BZP",
+  "BZP": "BZP",
+  "BENZOS": "BZP",
+
+  "COCAINE": "COC",
+  "COC": "COC",
+  "COCAINE METABOLITE": "COC",
+
+  "METHADONE": "MTD",
+  "MTD": "MTD",
+  "METHADONE MTB": "MTD",
+
+  "OPIATES": "OPI",
+  "OPIATE": "OPI",
+  "OPI": "OPI",
+  "OPIATES-4": "OPI",
+  "OP4": "OPI",
+
+  "PHENCYCLIDINE": "PCP",
+  "PCP": "PCP",
+
+  "MARIJUANA": "THC",
+  "THC": "THC",
+  "CANNABIS": "THC",
+  "MARIJUANA METABOLITES": "THC",
+
+  "PROPOXYPHENE": "PPX",
+  "PPX": "PPX",
+  "PROPOXYPHENE MTB": "PPX",
+
+  "6-AM": "6AM",
+  "6AM": "6AM",
+  "6-ACETYLMORPHINE": "6AM",
+  "HEROIN": "6AM",
+
+  "METHAQUALONE": "MDM",
+  "MDM": "MDM",
+  "MQU": "MDM",
+
+  "NITRITE": "NIT",
+  "NIT": "NIT",
+
+  "OXYCODONE": "OXC",
+  "OXYCODONE/OXYMORPHONE": "OXC",
+  "OXYC/OXYM": "OXC",
+  "OXC": "OXC",
+
+  "FENTANYL": "FNL",
+  "FNL": "FNL",
+
+  "CREATININE": "CREA",
+  "URINE CREATININE": "CREA",
+  "CREA": "CREA",
+
+  "PH": "PH",
+  "URINE PH": "PH",
+
+  "MEPERIDINE": "MEP",
+  "MEP": "MEP",
+
+  "HYDROCODONE": "HYC",
+  "HYC": "HYC",
+
+  "HYDROMORPHONE": "HYD",
+  "HYD": "HYD",
+
+  "TRAMADOL": "TRA",
+  "TRA": "TRA",
+
+  "BUPRENORPHINE": "BUP",
+  "BUP": "BUP",
+
+  "MDMA": "MDMA",
+  "MDMA/MDA": "MDMA",
+
+  "CODEINE": "CODMOR",
+  "MORPHINE": "CODMOR",
+  "CODEINE/MORPHINE": "CODMOR",
+  "COD/MOR": "CODMOR"
 };
+
+
+/* =========================================================
+   BASIC PANEL REFERENCE
+   =========================================================
+
+   This section is separate from the detailed vendor search.
+
+   Update the Labcorp mappings here whenever you receive
+   an official Labcorp panel/profile sheet.
+
+   ========================================================= */
+
+const BASIC_PANELS = {
+
+  "5 Panel": {
+
+    description: "Basic 5-drug panel reference",
+
+    vendors: [
+
+      {
+        vendor: "Labcorp",
+        code: "LAB-P1",
+        name: "Profile 1",
+        drugs: [
+          "AMP",
+          "COC",
+          "THC",
+          "OPI",
+          "PCP",
+          "NIT",
+          "6AM",
+          "CREA",
+          "PH"
+        ]
+      },
+
+      {
+        vendor: "CRL",
+        code: "3009",
+        name: "5SAP + SVT",
+        drugs: [
+          "AMP",
+          "COC",
+          "THC",
+          "PCP",
+          "OPI",
+          "CREA",
+          "PH",
+          "NIT"
+        ]
+      }
+
+    ]
+
+  },
+
+
+  "9 Panel": {
+
+    description: "Basic 9-drug panel reference",
+
+    vendors: [
+
+      {
+        vendor: "Labcorp",
+        code: "LAB-P8",
+        name: "Profile 8",
+        drugs: [
+          "AMP",
+          "BAR",
+          "COC",
+          "THC",
+          "OPI",
+          "PCP",
+          "BZP",
+          "MTD",
+          "PPX",
+          "NIT",
+          "CREA",
+          "PH"
+        ]
+      },
+
+      {
+        vendor: "CRL",
+        code: "3002",
+        name: "9SAP + SVT",
+        drugs: [
+          "AMP",
+          "BAR",
+          "BZP",
+          "COC",
+          "THC",
+          "MTD",
+          "PPX",
+          "PCP",
+          "OPI",
+          "CREA",
+          "PH",
+          "NIT"
+        ]
+      }
+
+    ]
+
+  },
+
+
+  "10 Panel": {
+
+    description: "Basic 10-drug panel reference",
+
+    vendors: [
+
+      {
+        vendor: "Labcorp",
+        code: "LAB-P3",
+        name: "Profile 3",
+        drugs: [
+          "AMP",
+          "BAR",
+          "COC",
+          "THC",
+          "OPI",
+          "PCP",
+          "BZP",
+          "MTD",
+          "MDM",
+          "PPX",
+          "OXC",
+          "6AM",
+          "TRA",
+          "BUP",
+          "CREA",
+          "PH",
+          "FNL"
+        ]
+      },
+
+      {
+        vendor: "CRL",
+        code: "30RY",
+        name: "10SAP + SVT",
+        drugs: [
+          "AMP",
+          "BAR",
+          "BZP",
+          "COC",
+          "THC",
+          "MTD",
+          "MDM",
+          "PPX",
+          "PCP",
+          "OPI",
+          "CREA",
+          "PH",
+          "NIT"
+        ]
+      }
+
+    ]
+
+  },
+
+
+  "15 Panel": {
+
+    description: "Extended 15-drug panel reference",
+
+    vendors: [
+
+      {
+        vendor: "Labcorp",
+        code: "LAB-P6",
+        name: "Profile 6",
+        drugs: [
+          "AMP",
+          "BAR",
+          "COC",
+          "THC",
+          "OPI",
+          "PCP",
+          "BZP",
+          "MTD",
+          "MDM",
+          "PPX",
+          "NIT",
+          "MEP",
+          "OXC",
+          "6AM",
+          "TRA",
+          "CREA",
+          "PH",
+          "HYD",
+          "FNL"
+        ]
+      },
+
+      {
+        vendor: "CRL",
+        code: "47JL",
+        name: "7SAP(-THC)+EXNR/MDMA/MTD/SVT",
+        drugs: [
+          "AMP",
+          "BAR",
+          "BZP",
+          "COC",
+          "MTD",
+          "MDMA",
+          "OXC",
+          "PCP",
+          "MEP",
+          "FNL",
+          "TRA",
+          "BUP",
+          "OPI",
+          "CREA",
+          "PH",
+          "NIT"
+        ]
+      }
+
+    ]
+
+  }
+
+};
+
+
+/* =========================================================
+   DETAILED PANEL INFORMATION
+   ========================================================= */
 
 const PANEL_INFO = {
-  // Labcorp profiles
-  "LAB-P1": {vendor:"Labcorp", name:"Profile 1"},
-  "LAB-P2": {vendor:"Labcorp", name:"Profile 2"},
-  "LAB-P3": {vendor:"Labcorp", name:"Profile 3"},
-  "LAB-P4": {vendor:"Labcorp", name:"Profile 4"},
-  "LAB-P5": {vendor:"Labcorp", name:"Profile 5"},
-  "LAB-P6": {vendor:"Labcorp", name:"Profile 6"},
-  "LAB-P7": {vendor:"Labcorp", name:"Profile 7"},
-  "LAB-P8": {vendor:"Labcorp", name:"Profile 8"},
-  "LAB-P9": {vendor:"Labcorp", name:"Profile 9"},
 
-  // CRL panels
-  "CRL-30C7": {vendor:"CRL", name:"30C7 — FED(LA)+SVT"},
-  "CRL-47JL": {vendor:"CRL", name:"47JL — 7SAP(-THC)+EXNR/MDMA/MTD/SVT"},
-  "CRL-30RY": {vendor:"CRL", name:"30RY — 10SAP+SVT"},
-  "CRL-3002": {vendor:"CRL", name:"3002 — 9SAP+SVT"},
-  "CRL-3009": {vendor:"CRL", name:"3009 — 5SAP+SVT"}
+  "LAB-P1": {
+    vendor: "Labcorp",
+    name: "Profile 1"
+  },
+
+  "LAB-P2": {
+    vendor: "Labcorp",
+    name: "Profile 2"
+  },
+
+  "LAB-P3": {
+    vendor: "Labcorp",
+    name: "Profile 3"
+  },
+
+  "LAB-P4": {
+    vendor: "Labcorp",
+    name: "Profile 4"
+  },
+
+  "LAB-P5": {
+    vendor: "Labcorp",
+    name: "Profile 5"
+  },
+
+  "LAB-P6": {
+    vendor: "Labcorp",
+    name: "Profile 6"
+  },
+
+  "LAB-P7": {
+    vendor: "Labcorp",
+    name: "Profile 7"
+  },
+
+  "LAB-P8": {
+    vendor: "Labcorp",
+    name: "Profile 8"
+  },
+
+  "LAB-P9": {
+    vendor: "Labcorp",
+    name: "Profile 9"
+  },
+
+  "CRL-30C7": {
+    vendor: "CRL",
+    name: "30C7 — FED(LA)+SVT"
+  },
+
+  "CRL-47JL": {
+    vendor: "CRL",
+    name: "47JL — 7SAP(-THC)+EXNR/MDMA/MTD/SVT"
+  },
+
+  "CRL-30RY": {
+    vendor: "CRL",
+    name: "30RY — 10SAP+SVT"
+  },
+
+  "CRL-3002": {
+    vendor: "CRL",
+    name: "3002 — 9SAP+SVT"
+  },
+
+  "CRL-3009": {
+    vendor: "CRL",
+    name: "3009 — 5SAP+SVT"
+  }
+
 };
+
+
+/* =========================================================
+   ALL DETAILED PANELS
+   ========================================================= */
 
 const PANELS = {
-  // LABCORP
-  "LAB-P1": ["AMP","COC","THC","OPI","PCP","NIT","6AM","CREA","PH"],
-  "LAB-P2": ["AMP","BAR","COC","THC","OPI","PCP","BZP","MTD","NIT","OXC","6AM","CREA","PH"],
-  "LAB-P3": ["AMP","BAR","COC","THC","OPI","PCP","BZP","MTD","MDM","PPX","OXC","6AM","TRA","BUP","CREA","PH","FNL"],
-  "LAB-P4": ["AMP","BAR","COC","OPI","PCP","BZP","MTD","NIT","OXC","6AM","CREA","PH"],
-  "LAB-P5": ["AMP","BAR","COC","THC","OPI","PCP","BZP","MTD","MDM","PPX","NIT","OXC","6AM","CREA","PH","FNL"],
-  "LAB-P6": ["AMP","BAR","COC","THC","OPI","PCP","BZP","MTD","MDM","PPX","NIT","MEP","OXC","6AM","TRA","CREA","PH","HYD","FNL"],
-  "LAB-P7": ["AMP","BAR","COC","OP4","PCP","BZP","MTD","MDM","NIT","MEP","TRA","BUP","CREA","PH","FNL"],
-  "LAB-P8": ["AMP","BAR","COC","THC","OP4","PCP","BZP","MTD","PPX","NIT","CREA","PH"],
-  "LAB-P9": ["AMP","BAR","COC","THC","MQU","OPI","PCP","BZP","MTD","PPX","NIT","OXC","6AM","CREA","PH"],
 
-  // CRL
-  "CRL-30C7": ["6AM","AMP","COC","THC","CODMOR","OXC","PCP","MDMA","HYC","CREA","PH","NIT"],
-  "CRL-47JL": ["AMP","BAR","BZP","COC","MTD","MDMA","OXC","PCP","MEP","FNL","TRA","BUP","OPI","CREA","PH","NIT"],
-  "CRL-30RY": ["AMP","BAR","BZP","COC","THC","MTD","MDM","PPX","PCP","OPI","CREA","PH","NIT"],
-  "CRL-3002": ["AMP","BAR","BZP","COC","THC","MTD","PPX","PCP","OPI","CREA","PH","NIT"],
-  "CRL-3009": ["AMP","COC","THC","PCP","OPI","CREA","PH","NIT"]
+  /* =========================
+     LABCORP
+     ========================= */
+
+  "LAB-P1": [
+    "AMP",
+    "COC",
+    "THC",
+    "OPI",
+    "PCP",
+    "NIT",
+    "6AM",
+    "CREA",
+    "PH"
+  ],
+
+  "LAB-P2": [
+    "AMP",
+    "BAR",
+    "COC",
+    "THC",
+    "OPI",
+    "PCP",
+    "BZP",
+    "MTD",
+    "NIT",
+    "OXC",
+    "6AM",
+    "CREA",
+    "PH"
+  ],
+
+  "LAB-P3": [
+    "AMP",
+    "BAR",
+    "COC",
+    "THC",
+    "OPI",
+    "PCP",
+    "BZP",
+    "MTD",
+    "MDM",
+    "PPX",
+    "OXC",
+    "6AM",
+    "TRA",
+    "BUP",
+    "CREA",
+    "PH",
+    "FNL"
+  ],
+
+  "LAB-P4": [
+    "AMP",
+    "BAR",
+    "COC",
+    "OPI",
+    "PCP",
+    "BZP",
+    "MTD",
+    "NIT",
+    "OXC",
+    "6AM",
+    "CREA",
+    "PH"
+  ],
+
+  "LAB-P5": [
+    "AMP",
+    "BAR",
+    "COC",
+    "THC",
+    "OPI",
+    "PCP",
+    "BZP",
+    "MTD",
+    "MDM",
+    "PPX",
+    "NIT",
+    "OXC",
+    "6AM",
+    "CREA",
+    "PH",
+    "FNL"
+  ],
+
+  "LAB-P6": [
+    "AMP",
+    "BAR",
+    "COC",
+    "THC",
+    "OPI",
+    "PCP",
+    "BZP",
+    "MTD",
+    "MDM",
+    "PPX",
+    "NIT",
+    "MEP",
+    "OXC",
+    "6AM",
+    "TRA",
+    "CREA",
+    "PH",
+    "HYD",
+    "FNL"
+  ],
+
+  "LAB-P7": [
+    "AMP",
+    "BAR",
+    "COC",
+    "OP4",
+    "PCP",
+    "BZP",
+    "MTD",
+    "MDM",
+    "NIT",
+    "MEP",
+    "TRA",
+    "BUP",
+    "CREA",
+    "PH",
+    "FNL"
+  ],
+
+  "LAB-P8": [
+    "AMP",
+    "BAR",
+    "COC",
+    "THC",
+    "OP4",
+    "PCP",
+    "BZP",
+    "MTD",
+    "PPX",
+    "NIT",
+    "CREA",
+    "PH"
+  ],
+
+  "LAB-P9": [
+    "AMP",
+    "BAR",
+    "COC",
+    "THC",
+    "MQU",
+    "OPI",
+    "PCP",
+    "BZP",
+    "MTD",
+    "PPX",
+    "NIT",
+    "OXC",
+    "6AM",
+    "CREA",
+    "PH"
+  ],
+
+
+  /* =========================
+     CRL
+     ========================= */
+
+  "CRL-30C7": [
+    "6AM",
+    "AMP",
+    "COC",
+    "THC",
+    "CODMOR",
+    "OXC",
+    "PCP",
+    "MDMA",
+    "HYC",
+    "CREA",
+    "PH",
+    "NIT"
+  ],
+
+  "CRL-47JL": [
+    "AMP",
+    "BAR",
+    "BZP",
+    "COC",
+    "MTD",
+    "MDMA",
+    "OXC",
+    "PCP",
+    "MEP",
+    "FNL",
+    "TRA",
+    "BUP",
+    "OPI",
+    "CREA",
+    "PH",
+    "NIT"
+  ],
+
+  "CRL-30RY": [
+    "AMP",
+    "BAR",
+    "BZP",
+    "COC",
+    "THC",
+    "MTD",
+    "MDM",
+    "PPX",
+    "PCP",
+    "OPI",
+    "CREA",
+    "PH",
+    "NIT"
+  ],
+
+  "CRL-3002": [
+    "AMP",
+    "BAR",
+    "BZP",
+    "COC",
+    "THC",
+    "MTD",
+    "PPX",
+    "PCP",
+    "OPI",
+    "CREA",
+    "PH",
+    "NIT"
+  ],
+
+  "CRL-3009": [
+    "AMP",
+    "COC",
+    "THC",
+    "PCP",
+    "OPI",
+    "CREA",
+    "PH",
+    "NIT"
+  ]
+
 };
 
-function normalizeToken(s){
-  s = s.trim().toUpperCase().replace(/[()]/g,"").replace(/\s+/g," ");
+
+/* =========================================================
+   NORMALIZE TOKEN
+   ========================================================= */
+
+function normalizeToken(value) {
+
+  let s = value
+    .trim()
+    .toUpperCase()
+    .replace(/[()]/g, "")
+    .replace(/\s+/g, " ");
+
   return ALIASES[s] || s;
 }
 
-function parseInput(text){
-  // Handles commas, new lines, semicolons, bullets and common "and"
-  return [...new Set(
-    text.split(/[,;\n•]+/)
-      .map(x => normalizeToken(x.replace(/\band\b/gi,"").trim()))
-      .filter(x => x)
-  )];
+
+/* =========================================================
+   PARSE INPUT
+   ========================================================= */
+
+function parseInput(text) {
+
+  return [
+    ...new Set(
+
+      text
+        .split(/[,;\n•]+/)
+        .map(x =>
+          normalizeToken(
+            x
+              .replace(/\band\b/gi, "")
+              .trim()
+          )
+        )
+        .filter(Boolean)
+
+    )
+  ];
+
 }
 
-function name(code){
+
+/* =========================================================
+   GET DRUG NAME
+   ========================================================= */
+
+function name(code) {
+
   return DRUGS[code] || code;
+
 }
 
-function matchPanels(){
-  const required = parseInput(document.getElementById("input").value);
-  const results = document.getElementById("results");
+
+/* =========================================================
+   CREATE DRUG CHIPS
+   ========================================================= */
+
+function createDrugChips(drugs) {
+
+  return drugs.map(code => {
+
+    return `
+      <div class="drug-chip">
+        <strong>${code}</strong>
+        <span> — ${name(code)}</span>
+      </div>
+    `;
+
+  }).join("");
+
+}
+
+
+/* =========================================================
+   RENDER BASIC PANELS
+   ========================================================= */
+
+function renderBasicPanels() {
+
+  const container =
+    document.getElementById("basicPanels");
+
+  container.innerHTML = "";
+
+
+  Object.entries(BASIC_PANELS).forEach(
+    ([panelName, panel], panelIndex) => {
+
+      const panelDiv =
+        document.createElement("div");
+
+      panelDiv.className =
+        "basic-panel";
+
+
+      let vendorsHTML = "";
+
+
+      panel.vendors.forEach(
+        (vendor, vendorIndex) => {
+
+          const statusId =
+            `basic-status-${panelIndex}-${vendorIndex}`;
+
+
+          vendorsHTML += `
+
+            <div class="vendor-block">
+
+              <div class="vendor-title">
+
+                <div class="vendor-name">
+                  ${vendor.vendor}
+                </div>
+
+                <div class="vendor-code">
+                  Code: ${vendor.code}
+                </div>
+
+              </div>
+
+              <div class="vendor-description">
+                ${vendor.name}
+              </div>
+
+              <div class="drug-grid">
+                ${createDrugChips(vendor.drugs)}
+              </div>
+
+              <div
+                id="${statusId}"
+                class="basic-status">
+              </div>
+
+            </div>
+
+          `;
+
+        }
+      );
+
+
+      panelDiv.innerHTML = `
+
+        <div class="basic-panel-header">
+
+          <h3>${panelName}</h3>
+
+          <p>
+            ${panel.description}
+          </p>
+
+        </div>
+
+        ${vendorsHTML}
+
+      `;
+
+
+      container.appendChild(panelDiv);
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   UPDATE BASIC PANEL MATCHES
+   ========================================================= */
+
+function updateBasicPanelMatches() {
+
+  const input =
+    document.getElementById("input").value;
+
+  const required =
+    parseInput(input);
+
+
+  Object.entries(BASIC_PANELS).forEach(
+    ([panelName, panel], panelIndex) => {
+
+      panel.vendors.forEach(
+        (vendor, vendorIndex) => {
+
+          const status =
+            document.getElementById(
+              `basic-status-${panelIndex}-${vendorIndex}`
+            );
+
+
+          if (!status) {
+            return;
+          }
+
+
+          if (!required.length) {
+
+            status.className =
+              "basic-status";
+
+            status.innerHTML = "";
+
+            return;
+
+          }
+
+
+          const matched =
+            required.filter(
+              drug =>
+                vendor.drugs.includes(drug)
+            );
+
+
+          const missing =
+            required.filter(
+              drug =>
+                !vendor.drugs.includes(drug)
+            );
+
+
+          let statusClass =
+            "basic-status show";
+
+
+          let title;
+
+
+          if (missing.length === 0) {
+
+            statusClass += " full";
+
+            title =
+              `✓ FULL MATCH — ${matched.length}/${required.length}`;
+
+          }
+          else if (matched.length > 0) {
+
+            statusClass += " partial";
+
+            title =
+              `◐ PARTIAL MATCH — ${matched.length}/${required.length}`;
+
+          }
+          else {
+
+            statusClass += " none";
+
+            title =
+              "✕ NO MATCH";
+
+          }
+
+
+          status.className =
+            statusClass;
+
+
+          status.innerHTML = `
+
+            <div class="status-title">
+              ${title}
+            </div>
+
+            ${
+              matched.length
+                ? `
+                  <div class="status-row">
+                    <strong>Matching:</strong>
+                    ${matched.map(name).join(", ")}
+                  </div>
+                `
+                : ""
+            }
+
+            ${
+              missing.length
+                ? `
+                  <div class="status-row">
+                    <strong>Missing:</strong>
+                    ${missing.map(name).join(", ")}
+                  </div>
+                `
+                : ""
+            }
+
+          `;
+
+        }
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   SEARCH ALL PANELS
+   ========================================================= */
+
+function matchPanels() {
+
+  const required =
+    parseInput(
+      document.getElementById("input").value
+    );
+
+
+  const results =
+    document.getElementById("results");
+
+
   results.innerHTML = "";
 
-  if(!required.length){
-    results.innerHTML = '<div class="card">Please enter at least one drug.</div>';
+
+  if (!required.length) {
+
+    results.innerHTML = `
+
+      <div class="empty-card">
+        Please enter at least one drug.
+      </div>
+
+    `;
+
     return;
+
   }
 
-  const ranked = Object.entries(PANELS).map(([panel, drugs])=>{
-    const matched = required.filter(d => drugs.includes(d));
-    const missing = required.filter(d => !drugs.includes(d));
-    return {panel, matched, missing, pct: matched.length/required.length};
-  }).sort((a,b)=> b.pct-a.pct || a.missing.length-b.missing.length);
 
-  ranked.forEach(r=>{
-    const cls = r.missing.length===0 ? "match" : (r.matched.length ? "partial" : "no");
-    const label = r.missing.length===0 ? "MATCH" : (r.matched.length ? "PARTIAL MATCH" : "NO MATCH");
-    const div = document.createElement("div");
-    div.className = `result ${cls}`;
-    const info = PANEL_INFO[r.panel] || {vendor:"", name:""};
+  /* Update basic panel section */
+
+  updateBasicPanelMatches();
+
+
+  /* Rank all detailed panels */
+
+  const ranked =
+
+    Object.entries(PANELS)
+
+      .map(([panel, drugs]) => {
+
+        const matched =
+          required.filter(
+            drug => drugs.includes(drug)
+          );
+
+
+        const missing =
+          required.filter(
+            drug => !drugs.includes(drug)
+          );
+
+
+        return {
+
+          panel,
+
+          matched,
+
+          missing,
+
+          pct:
+            matched.length /
+            required.length
+
+        };
+
+      })
+
+
+      .sort(
+        (a, b) =>
+
+          b.pct - a.pct ||
+
+          a.missing.length -
+          b.missing.length
+
+      );
+
+
+  /* Render results */
+
+  ranked.forEach(result => {
+
+    const cls =
+
+      result.missing.length === 0
+
+        ? "match"
+
+        : result.matched.length
+
+          ? "partial"
+
+          : "no";
+
+
+    const label =
+
+      result.missing.length === 0
+
+        ? "MATCH"
+
+        : result.matched.length
+
+          ? "PARTIAL MATCH"
+
+          : "NO MATCH";
+
+
+    const div =
+      document.createElement("div");
+
+
+    div.className =
+      `result ${cls}`;
+
+
+    const info =
+      PANEL_INFO[result.panel] ||
+      {
+        vendor: "",
+        name: ""
+      };
+
+
     div.innerHTML = `
-      <strong>${info.vendor ? info.vendor + " — " : ""}${info.name || r.panel}</strong><span class="badge">${label}</span>
-      <div>Matched: ${r.matched.length}/${required.length}</div>
-      ${r.missing.length ? `<div class="missing"><strong>Missing:</strong> ${r.missing.map(name).join(", ")}</div>` : `<div><strong>All requested drugs are present.</strong></div>`}
-      ${r.matched.length ? `<div class="extra"><strong>Matched drugs:</strong> ${r.matched.map(name).join(", ")}</div>` : ""}
+
+      <strong>
+
+        ${
+          info.vendor
+            ? info.vendor + " — "
+            : ""
+        }
+
+        ${info.name || result.panel}
+
+      </strong>
+
+      <span class="badge">
+        ${label}
+      </span>
+
+
+      <div class="result-count">
+
+        Matched:
+        ${result.matched.length}/${required.length}
+
+      </div>
+
+
+      ${
+        result.missing.length
+
+          ?
+
+          `
+            <div class="missing">
+
+              <strong>
+                Missing:
+              </strong>
+
+              ${result.missing.map(name).join(", ")}
+
+            </div>
+          `
+
+          :
+
+          `
+            <div class="extra">
+
+              <strong>
+                All requested drugs are present.
+              </strong>
+
+            </div>
+          `
+      }
+
+
+      ${
+        result.matched.length
+
+          ?
+
+          `
+            <div class="extra">
+
+              <strong>
+                Matched drugs:
+              </strong>
+
+              ${result.matched.map(name).join(", ")}
+
+            </div>
+          `
+
+          :
+
+          ""
+      }
+
     `;
+
+
     results.appendChild(div);
+
   });
+
 }
+
+
+/* =========================================================
+   CLEAR SEARCH
+   ========================================================= */
+
+function clearSearch() {
+
+  document.getElementById("input").value = "";
+
+  document.getElementById("results").innerHTML = "";
+
+  updateBasicPanelMatches();
+
+}
+
+
+/* =========================================================
+   INITIALIZE PAGE
+   ========================================================= */
+
+renderBasicPanels();
+
 </script>
+
 </body>
 </html>
